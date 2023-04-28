@@ -4,16 +4,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.InvalidException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,22 +26,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getAllUsers() {
-        return users.values();
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public User getUserById(Long userId) {
-        if (users.get(userId) == null) {
-            throw new IdNotFoundException("Пользователь с айди " + userId + " не найден");
-        } else {
-            return users.get(userId);
-        }
+        return users.get(userId);
     }
 
     @Override
-    public User createUser(UserDto userDto) {
-        User user = UserMapper.toUser(userDto);
+    public User createUser(User user) {
         emailValidator(user.getId(), user.getEmail());
         user.setId(generateId());
         users.put(user.getId(), user);
@@ -54,30 +44,20 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(Long userId, UserDto userDto) {
-        User user = users.get(userId);
-        if (!users.containsKey(userId)) {
-            throw new IdNotFoundException("Пользователь с айди " + userId + " не найден");
-        } else {
-            if (userDto.getName() != null) {
-                user.setName(userDto.getName());
-            }
-            if (userDto.getEmail() != null) {
-                checkEmail(userDto.getEmail(), userId);
-                user.setEmail(userDto.getEmail());
-            }
-            users.put(userId, user);
+    public User updateUser(Long userId, User user) {
+        if (user.getName() != null) {
+            users.get(userId).setName(user.getName());
         }
-        return user;
+        if (user.getEmail() != null) {
+            emailValidator(userId, user.getEmail());
+            users.get(userId).setEmail(user.getEmail());
+        }
+        return users.get(userId);
     }
 
     @Override
     public void deleteUser(Long userId) {
-        if (!users.containsKey(userId)) {
-            throw new IdNotFoundException("Пользователь с айди " + userId + " не найден");
-        } else {
-            users.remove(userId);
-        }
+        users.remove(userId);
     }
 
     private void emailValidator(Long userId, String email) {

@@ -3,11 +3,10 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.user.model.User;
-
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -17,6 +16,5 @@ public class ItemDto {
     String name;
     String description;
     Boolean available;
-    User owner;
     Long requestDtoId;
 }

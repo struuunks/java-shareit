@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
@@ -12,9 +11,9 @@ public interface UserStorage {
 
     User getUserById(Long id);
 
-    User createUser(UserDto userDto);
+    User createUser(User user);
 
-    User updateUser(Long userId, UserDto userDto);
+    User updateUser(Long userId, User user);
 
     void deleteUser(Long userId);
 }

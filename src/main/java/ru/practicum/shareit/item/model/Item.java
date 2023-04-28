@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.model.User;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
