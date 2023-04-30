@@ -1,17 +1,14 @@
 package ru.practicum.shareit.item.storage;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InMemoryItemStorage implements ItemStorage {
     Long id = 0L;
@@ -22,25 +19,16 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public Item createItem(Item item, User user) {
-        item.setOwner(user);
+    public Item createItem(Item item) {
         item.setId(generateId());
         items.put(item.getId(), item);
         return item;
     }
 
     @Override
-    public Item updateItem(Long itemId, Item item) {
-        if (item.getName() != null) {
-            items.get(itemId).setName(item.getName());
-        }
-        if (item.getDescription() != null) {
-            items.get(itemId).setDescription(item.getDescription());
-        }
-        if (item.getAvailable() != null) {
-            items.get(itemId).setAvailable(item.getAvailable());
-        }
-        return items.get(itemId);
+    public Item updateItem(Item item) {
+        items.put(item.getId(), item);
+        return items.get(item.getId());
     }
 
     @Override

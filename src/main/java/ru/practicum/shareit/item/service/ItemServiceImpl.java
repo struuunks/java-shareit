@@ -1,10 +1,13 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemValidator;
 import ru.practicum.shareit.item.storage.InMemoryItemStorage;
 import ru.practicum.shareit.user.model.User;
@@ -15,7 +18,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemServiceImpl implements ItemService {
     final InMemoryItemStorage itemStorage;
     final InMemoryUserStorage userStorage;
@@ -25,7 +29,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItem(ItemDto itemDto, Long userId) {
         validator.validate(itemDto, userId);
         User user = userStorage.getUserById(userId);
-        return ItemMapper.toItemDto(itemStorage.createItem(ItemMapper.toItem(itemDto), user));
+        return ItemMapper.toItemDto(itemStorage.createItem(ItemMapper.toItem(itemDto, user)));
     }
 
     @Override
@@ -33,10 +37,20 @@ public class ItemServiceImpl implements ItemService {
         if (itemStorage.getItemById(itemId) == null) {
             throw new DataNotFoundException("Вещь с айди " + itemDto.getId() + " не найдена");
         } else {
-            if (!itemStorage.getItemById(itemId).getOwner().getId().equals(userId)) {
+            Item item = itemStorage.getItemById(itemId);
+            if (!item.getOwner().getId().equals(userId)) {
                 throw new DataNotFoundException("Пользователь с айди " + userId + "не является владельцем вещи");
             }
-            return ItemMapper.toItemDto(itemStorage.updateItem(itemId, ItemMapper.toItem(itemDto)));
+            if (itemDto.getName() != null) {
+                item.setName(itemDto.getName());
+            }
+            if (itemDto.getDescription() != null) {
+                item.setDescription(itemDto.getDescription());
+            }
+            if (itemDto.getAvailable() != null) {
+                item.setAvailable(itemDto.getAvailable());
+            }
+            return ItemMapper.toItemDto(itemStorage.updateItem(item));
         }
     }
 
@@ -44,9 +58,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto viewItemInformation(Long itemId) {
         if (itemStorage.getItemById(itemId) == null) {
             throw new DataNotFoundException("Вещь с айди " + itemId + " не найдена");
-        } else {
-            return ItemMapper.toItemDto(itemStorage.getItemById(itemId));
         }
+        return ItemMapper.toItemDto(itemStorage.getItemById(itemId));
     }
 
     @Override

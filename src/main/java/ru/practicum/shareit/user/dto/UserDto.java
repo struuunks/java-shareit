@@ -5,12 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 
-@Getter
-@Setter
+@Data
 @Builder
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDto {
     Long id;
