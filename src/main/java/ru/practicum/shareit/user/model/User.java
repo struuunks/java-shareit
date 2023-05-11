@@ -2,11 +2,11 @@ package ru.practicum.shareit.user.model;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
 
+@Entity
+@Table(name = "users")
 @Getter
 @Setter
 @Builder
@@ -14,8 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    @Column(name = "name", nullable = false)
     String name;
+    @Column(name = "email", nullable = false, unique = true)
     String email;
-    List<Item> items = new ArrayList<>();
 }

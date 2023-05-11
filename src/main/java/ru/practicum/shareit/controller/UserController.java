@@ -1,6 +1,8 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.controller;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -12,12 +14,13 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/users")
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserController {
-    private final UserServiceImpl service;
+    final UserServiceImpl service;
 
     @PostMapping
     public UserDto createUser(@RequestBody UserDto userDto) {
-        log.info("Добавлен новый пользователь");
+        log.info("Добавление нового пользователя");
         return service.createUser(userDto);
     }
 
@@ -41,7 +44,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable Long userId) {
-        log.info("Удален пользователь с айди " + userId);
+        log.info("Удаление пользователь с айди " + userId);
         service.deleteUser(userId);
     }
 }
