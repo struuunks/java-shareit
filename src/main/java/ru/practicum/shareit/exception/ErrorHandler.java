@@ -18,8 +18,9 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
         log.info("Ошибка 400, неверный запрос");
         return new ResponseEntity<>(Map.of("Неверный запрос", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(final DataNotFoundException e){
+    public ResponseEntity<Map<String, String>> handleNotFound(final DataNotFoundException e) {
         log.info("Ошибка 404, неверный айди");
         return new ResponseEntity<>(Map.of("Ошибка параметра айди", e.getMessage()), HttpStatus.NOT_FOUND);
     }

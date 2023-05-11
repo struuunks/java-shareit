@@ -77,15 +77,18 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new DataNotFoundException("Вещь с айди " + itemId + " не найдена"));
         ItemDtoOwner itemDtoOwner = ItemMapper.toItemDtoOwner(item, null, null);
-        List<CommentDto> comments = commentRepository.findCommentByItemId(itemId).stream()
+        List<CommentDto> comments = commentRepository.findCommentByItemId(itemId)
+                .stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList());
         itemDtoOwner.setComments(comments);
         if (item.getOwner().getId().equals(userId)) {
-            Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc
-                    (itemId, LocalDateTime.now(), APPROVED);
-            Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc
-                    (itemId, LocalDateTime.now(), APPROVED);
+            Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc(
+                    itemId, LocalDateTime.now(), APPROVED
+            );
+            Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc(
+                    itemId, LocalDateTime.now(), APPROVED
+            );
             if (last != null) {
                 itemDtoOwner.setLastBooking(BookingMapper.toBookingDto(last));
             }
@@ -109,14 +112,18 @@ public class ItemServiceImpl implements ItemService {
                 new DataNotFoundException("Пользователь с айди " + authorId + " не найден"));
         Comment comment = CommentMapper.toComment(commentDto, user, item);
 
-        List<Booking> bookings = bookingRepository.findBookingsByBookerIdAndItemId(user.getId(), item.getId()).stream()
+        List<Booking> bookings = bookingRepository.findBookingsByBookerIdAndItemId(user.getId(), item.getId())
+                .stream()
                 .filter(b -> b.getEnd().isBefore(LocalDateTime.now()) && b.getStatus().equals(APPROVED))
                 .collect(Collectors.toList());
 
         if (bookings.isEmpty()) {
-            throw new InvalidException("Пользователь с айди " + user.getId() + " не бронировал вещь с айди " + item.getId());
+            throw new InvalidException(
+                    "Пользователь с айди " + user.getId() + " не бронировал вещь с айди " + item.getId()
+            );
         }
-        List<Comment> comments = commentRepository.findCommentByItemId(itemId).stream()
+        List<Comment> comments = commentRepository.findCommentByItemId(itemId)
+                .stream()
                 .filter(c -> c.getAuthor().getId().equals(user.getId()))
                 .collect(Collectors.toList());
         if (!comments.isEmpty()) {
@@ -132,10 +139,12 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime ldt = LocalDateTime.now();
         for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)) {
             ItemDtoOwner itemDtoOwner = ItemMapper.toItemDtoOwner(i, null, null);
-            Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc
-                    (i.getId(), ldt, APPROVED);
-            Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc
-                    (i.getId(), ldt, APPROVED);
+            Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc(
+                    i.getId(), ldt, APPROVED
+            );
+            Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc(
+                    i.getId(), ldt, APPROVED
+            );
             if (last != null) {
                 itemDtoOwner.setLastBooking(BookingMapper.toBookingDto(last));
             }
