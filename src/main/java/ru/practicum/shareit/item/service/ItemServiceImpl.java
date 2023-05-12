@@ -24,7 +24,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDtoOwner getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new DataNotFoundException("Вещь с айди " + itemId + " не найдена"));
-        ItemDtoOwner itemDtoOwner = ItemMapper.toItemDtoOwner(item, null, null);
+        ItemDtoOwner itemDtoOwner = ItemMapper.toItemDtoOwner(item);
         List<CommentDto> comments = commentRepository.findCommentByItemId(itemId)
                 .stream()
                 .map(CommentMapper::toCommentDto)
@@ -127,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(c -> c.getAuthor().getId().equals(user.getId()))
                 .collect(Collectors.toList());
         if (!comments.isEmpty()) {
-            throw new InvalidException("пользователь уже коментировал эту вещь");
+            throw new InvalidException("Пользователь уже коментировал эту вещь");
         }
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
@@ -135,25 +134,22 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public List<ItemDtoOwner> viewAllItems(Long userId) {
-        List<ItemDtoOwner> items = new ArrayList<>();
         LocalDateTime ldt = LocalDateTime.now();
-        for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)) {
-            ItemDtoOwner itemDtoOwner = ItemMapper.toItemDtoOwner(i, null, null);
-            Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc(
-                    i.getId(), ldt, APPROVED
-            );
-            Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc(
-                    i.getId(), ldt, APPROVED
-            );
-            if (last != null) {
-                itemDtoOwner.setLastBooking(BookingMapper.toBookingDto(last));
-            }
-            if (next != null) {
-                itemDtoOwner.setNextBooking(BookingMapper.toBookingDto(next));
-            }
-            items.add(itemDtoOwner);
-        }
-        return items;
+        return itemRepository.findByOwnerIdOrderByIdAsc(userId).stream()
+                .map(ItemMapper::toItemDtoOwner)
+                .peek(itemDtoOwner -> {
+                    Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc(
+                            itemDtoOwner.getId(), ldt, APPROVED);
+                    Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc(
+                            itemDtoOwner.getId(), ldt, APPROVED);
+                    if (last != null) {
+                        itemDtoOwner.setLastBooking(BookingMapper.toBookingDto(last));
+                    }
+                    if (next != null) {
+                        itemDtoOwner.setNextBooking(BookingMapper.toBookingDto(next));
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
