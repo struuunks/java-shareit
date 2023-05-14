@@ -24,6 +24,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -135,21 +136,32 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDtoOwner> viewAllItems(Long userId) {
         LocalDateTime ldt = LocalDateTime.now();
-        return itemRepository.findByOwnerIdOrderByIdAsc(userId).stream()
-                .map(ItemMapper::toItemDtoOwner)
-                .peek(itemDtoOwner -> {
-                    Booking last = bookingRepository.findFirstByItemIdAndStartIsBeforeAndStatusIsOrderByStartDesc(
-                            itemDtoOwner.getId(), ldt, APPROVED);
-                    Booking next = bookingRepository.findTopByItemIdAndStartIsAfterAndStatusIsOrderByStartAsc(
-                            itemDtoOwner.getId(), ldt, APPROVED);
-                    if (last != null) {
-                        itemDtoOwner.setLastBooking(BookingMapper.toBookingDto(last));
+        List<Booking> bookings = bookingRepository.findBookingsByStatusOrderByStartDesc(APPROVED);
+        List<ItemDtoOwner> items = new ArrayList<>();
+        for(Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)){
+            List<Booking> bookingsByItem = bookings.stream()
+                    .filter(b -> b.getItem().getId().equals(i.getId()))
+                    .collect(Collectors.toList());
+            ItemDtoOwner item = ItemMapper.toItemDtoOwner(i);
+            if(!bookingsByItem.isEmpty()) {
+                if (bookingsByItem.get(0).getEnd().isBefore(ldt)) {
+                    item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
+                } else if(bookingsByItem.get(0).getStart().isAfter(ldt) && bookingsByItem.get(1) == null){
+                    item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
+                } else {
+                    if (bookingsByItem.get(0).getStart().isAfter(ldt) &&
+                            bookingsByItem.get(1).getEnd().isBefore(ldt)) {
+                        item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(1)));
+                        item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
+                    } else {
+                        item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(2)));
+                        item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(1)));
                     }
-                    if (next != null) {
-                        itemDtoOwner.setNextBooking(BookingMapper.toBookingDto(next));
-                    }
-                })
-                .collect(Collectors.toList());
+                }
+            }
+           items.add(item);
+        }
+        return items;
     }
 
     @Transactional(readOnly = true)
