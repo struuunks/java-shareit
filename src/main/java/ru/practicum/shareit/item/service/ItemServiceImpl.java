@@ -138,15 +138,15 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime ldt = LocalDateTime.now();
         List<Booking> bookings = bookingRepository.findBookingsByStatusOrderByStartDesc(APPROVED);
         List<ItemDtoOwner> items = new ArrayList<>();
-        for(Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)){
+        for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)) {
             List<Booking> bookingsByItem = bookings.stream()
                     .filter(b -> b.getItem().getId().equals(i.getId()))
                     .collect(Collectors.toList());
             ItemDtoOwner item = ItemMapper.toItemDtoOwner(i);
-            if(!bookingsByItem.isEmpty()) {
+            if (!bookingsByItem.isEmpty()) {
                 if (bookingsByItem.get(0).getEnd().isBefore(ldt)) {
                     item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
-                } else if(bookingsByItem.get(0).getStart().isAfter(ldt) && bookingsByItem.get(1) == null){
+                } else if (bookingsByItem.get(0).getStart().isAfter(ldt) && bookingsByItem.get(1) == null) {
                     item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
                 } else {
                     if (bookingsByItem.get(0).getStart().isAfter(ldt) &&
@@ -159,7 +159,7 @@ public class ItemServiceImpl implements ItemService {
                     }
                 }
             }
-           items.add(item);
+            items.add(item);
         }
         return items;
     }
