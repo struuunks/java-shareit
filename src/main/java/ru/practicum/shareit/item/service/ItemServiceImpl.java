@@ -136,28 +136,22 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDtoOwner> viewAllItems(Long userId) {
         LocalDateTime ldt = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findBookingsByStatusOrderByStartDesc(APPROVED);
+        List<Booking> lastBookings = bookingRepository.findBookingsByStatusAndEndIsBeforeOrderByStartDesc(APPROVED, ldt);
+        List<Booking> nextBookings = bookingRepository.findBookingsByStatusAndStartIsAfterOrderByStartAsc(APPROVED, ldt);
         List<ItemDtoOwner> items = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)) {
-            List<Booking> bookingsByItem = bookings.stream()
+            List<Booking> lastBookingsByItem = lastBookings.stream()
+                    .filter(b -> b.getItem().getId().equals(i.getId()))
+                    .collect(Collectors.toList());
+            List<Booking> nextBookingsByItem = nextBookings.stream()
                     .filter(b -> b.getItem().getId().equals(i.getId()))
                     .collect(Collectors.toList());
             ItemDtoOwner item = ItemMapper.toItemDtoOwner(i);
-            if (!bookingsByItem.isEmpty()) {
-                if (bookingsByItem.get(0).getEnd().isBefore(ldt)) {
-                    item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
-                } else if (bookingsByItem.get(0).getStart().isAfter(ldt) && bookingsByItem.get(1) == null) {
-                    item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
-                } else {
-                    if (bookingsByItem.get(0).getStart().isAfter(ldt) &&
-                            bookingsByItem.get(1).getEnd().isBefore(ldt)) {
-                        item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(1)));
-                        item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(0)));
-                    } else {
-                        item.setLastBooking(BookingMapper.toBookingDto(bookingsByItem.get(2)));
-                        item.setNextBooking(BookingMapper.toBookingDto(bookingsByItem.get(1)));
-                    }
-                }
+            if (!lastBookingsByItem.isEmpty()) {
+                item.setLastBooking(BookingMapper.toBookingDto(lastBookingsByItem.get(0)));
+            }
+            if (!nextBookingsByItem.isEmpty()) {
+                item.setNextBooking(BookingMapper.toBookingDto(nextBookingsByItem.get(0)));
             }
             items.add(item);
         }
