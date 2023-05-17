@@ -1,18 +1,19 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.dto;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Booking {
+public class BookingDtoReturned {
     Long id;
     LocalDateTime start;
     LocalDateTime end;
