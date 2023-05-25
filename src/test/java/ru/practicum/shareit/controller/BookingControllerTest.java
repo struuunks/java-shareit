@@ -43,8 +43,14 @@ class BookingControllerTest {
     private final User user = new User(1L, "User", "user@yandex.ru");
     private final User user2 = new User(2L, "User2", "user2@yandex.ru");
     private final Item item = new Item(1L,"item", "description", true, user, null);
-    private final Booking booking = new Booking(1L, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1),
-            item, user2, WAITING);
+    private final Booking booking = new Booking(
+            1L,
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().plusDays(1),
+            item,
+            user2,
+            WAITING
+    );
     private final BookingDtoReturned bookingDtoReturned = BookingMapper.toBookingDtoReturned(booking);
 
     @Test
