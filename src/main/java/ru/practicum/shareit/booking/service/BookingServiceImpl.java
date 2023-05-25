@@ -166,7 +166,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingsDB.stream()
                         .filter(b -> b.getStart().isBefore(LocalDateTime.now()) &&
                                 b.getEnd().isAfter(LocalDateTime.now()))
-                        .sorted(Comparator.comparing(Booking::getStart).reversed())
+                        .sorted(Comparator.comparing(Booking::getEnd).reversed())
                         .collect(Collectors.toList());
                 break;
             case PAST:
