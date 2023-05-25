@@ -58,8 +58,37 @@ public class ItemServiceTest {
     }
 
     @Test
+    void createItemWrongUserTest() {
+        assertThrows(DataNotFoundException.class,
+                () -> itemService.createItem(ItemMapper.toItemDto(item), 5L));
+    }
+
+    @Test
+    void createItemWrongRequestTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        ItemDto itemDto = ItemMapper.toItemDto(item);
+        itemDto.setRequestId(5L);
+
+        assertThrows(DataNotFoundException.class, () -> itemService.createItem(itemDto, user.getId()));
+    }
+
+    @Test
     void createItemWithWrongUserTest() {
         assertThrows(DataNotFoundException.class, () -> itemService.createItem(ItemMapper.toItemDto(item), user.getId()));
+    }
+
+    @Test
+    void updateItemWrongUserTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+        ItemDto itemDto = itemService.createItem(ItemMapper.toItemDto(item), user.getId());
+        item.setId(itemDto.getId());
+        item.setName("new item name");
+
+        assertThrows(DataNotFoundException.class,
+                () -> itemService.updateItem(item.getId(), ItemMapper.toItemDto(item), 5L));
     }
 
     @Test
@@ -135,6 +164,91 @@ public class ItemServiceTest {
     }
 
     @Test
+    void emptyCommentItemTest() throws InterruptedException {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        ItemDto itemDto = itemService.createItem(ItemMapper.toItemDto(item), user.getId());
+        item.setId(itemDto.getId());
+
+        User author = new User(null, "author", "author@yandex.ru");
+        UserDto authorDto = userService.createUser(UserMapper.toUserDto(author));
+        author.setId(authorDto.getId());
+
+        Booking booking = new Booking(null, LocalDateTime.now().plusSeconds(1), LocalDateTime.now().plusSeconds(2),
+                item, null, null);
+        BookingDtoReturned bookingDtoReturned =
+                bookingService.createBooking(BookingMapper.toBookingDtoReceived(booking), author.getId());
+        booking.setId(bookingDtoReturned.getId());
+        bookingService.bookingConfirmation(booking.getId(), true, user.getId());
+
+        sleep(6000);
+
+        Comment comment = new Comment(null, "", item, author);
+        assertThrows(InvalidException.class,
+                () -> itemService.commentItem(item.getId(), CommentMapper.toCommentDto(comment), author.getId()));
+    }
+
+    @Test
+    void commentWrongItemTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        User author = new User(null, "author", "author@yandex.ru");
+        UserDto authorDto = userService.createUser(UserMapper.toUserDto(author));
+        author.setId(authorDto.getId());
+
+        item.setId(5L);
+        Comment comment = new Comment(null, "comment", item, author);
+        assertThrows(DataNotFoundException.class,
+                () -> itemService.commentItem(item.getId(), CommentMapper.toCommentDto(comment), author.getId()));
+    }
+
+    @Test
+    void commentItemWrongUserTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        ItemDto itemDto = itemService.createItem(ItemMapper.toItemDto(item), user.getId());
+        item.setId(itemDto.getId());
+
+        User author = new User(null, "author", "author@yandex.ru");
+        author.setId(5L);
+
+        Comment comment = new Comment(null, "comment", item, author);
+        assertThrows(DataNotFoundException.class,
+                () -> itemService.commentItem(item.getId(), CommentMapper.toCommentDto(comment), author.getId()));
+    }
+
+    @Test
+    void doubleCommentItemTest() throws InterruptedException {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        ItemDto itemDto = itemService.createItem(ItemMapper.toItemDto(item), user.getId());
+        item.setId(itemDto.getId());
+
+        User author = new User(null, "author", "author@yandex.ru");
+        UserDto authorDto = userService.createUser(UserMapper.toUserDto(author));
+        author.setId(authorDto.getId());
+
+        Booking booking = new Booking(null, LocalDateTime.now().plusSeconds(1), LocalDateTime.now().plusSeconds(2),
+                item, null, null);
+        BookingDtoReturned bookingDtoReturned =
+                bookingService.createBooking(BookingMapper.toBookingDtoReceived(booking), author.getId());
+        booking.setId(bookingDtoReturned.getId());
+        bookingService.bookingConfirmation(booking.getId(), true, user.getId());
+
+        sleep(6000);
+
+        Comment comment = new Comment(null, "comment", item, author);
+        itemService.commentItem(item.getId(), CommentMapper.toCommentDto(comment), author.getId());
+
+        assertThrows(InvalidException.class,
+                () -> itemService.commentItem(item.getId(), CommentMapper.toCommentDto(comment), author.getId()));
+    }
+
+    @Test
     void commentItemWithoutBookingTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
@@ -171,6 +285,14 @@ public class ItemServiceTest {
         assertEquals(itemsDtoOwner.get(0).getName(), item.getName());
         assertEquals(itemsDtoOwner.get(1).getName(), item2.getName());
         assertEquals(itemsDtoOwner.get(2).getName(), item3.getName());
+    }
+
+    @Test
+    void viewAllItemsWrongPaginationTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        assertThrows(InvalidException.class, () -> itemService.viewAllItems(user.getId(), -5, 10));
     }
 
     @Test

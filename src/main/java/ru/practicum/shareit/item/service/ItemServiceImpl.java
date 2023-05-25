@@ -149,8 +149,10 @@ public class ItemServiceImpl implements ItemService {
                     " не могут быть меньше нуля");
         }
         LocalDateTime ldt = LocalDateTime.now();
-        List<Booking> lastBookings = bookingRepository.findBookingsByStatusAndEndIsBeforeOrderByStartDesc(APPROVED, ldt);
-        List<Booking> nextBookings = bookingRepository.findBookingsByStatusAndStartIsAfterOrderByStartAsc(APPROVED, ldt);
+        List<Booking> lastBookings =
+                bookingRepository.findBookingsByStatusAndEndIsBeforeOrderByStartDesc(APPROVED, ldt);
+        List<Booking> nextBookings =
+                bookingRepository.findBookingsByStatusAndStartIsAfterOrderByStartAsc(APPROVED, ldt);
         List<ItemDtoOwner> items = new ArrayList<>();
         for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId, PageRequest.of(from / size, size))) {
             List<Booking> lastBookingsByItem = lastBookings.stream()

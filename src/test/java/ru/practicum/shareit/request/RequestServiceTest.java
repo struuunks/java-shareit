@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.InvalidException;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.RequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -31,14 +31,13 @@ public class RequestServiceTest {
 
     private final User user = new User(null, "user", "user@yandex.ru");
     private final User user2 = new User(null, "user2", "user2@yandex.ru");
-    private final Item item =
-            new Item(null, "item", "description", true, user, null);
     private final ItemRequest request = new ItemRequest(null, "request", user2, LocalDateTime.now());
 
     @Test
     void createRequestTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
+
         ItemRequestDto requestDto =
                 requestService.createRequest(RequestMapper.toItemRequestDto(request), user.getId());
         request.setId(requestDto.getId());
@@ -49,9 +48,16 @@ public class RequestServiceTest {
     }
 
     @Test
+    void createRequestWrongUserTest() {
+        assertThrows(DataNotFoundException.class,
+                () -> requestService.createRequest(RequestMapper.toItemRequestDto(request), 5L));
+    }
+
+    @Test
     void createRequestEmptyTextTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
+
         request.setDescription("");
 
         assertThrows(InvalidException.class,
@@ -59,24 +65,47 @@ public class RequestServiceTest {
     }
 
     @Test
+    void getWrongUserRequestsTest() {
+        assertThrows(DataNotFoundException.class,
+                () -> requestService.getUserRequests(5L));
+    }
+
+    @Test
     void getUserRequestsTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
+
         ItemRequestDto requestDto =
                 requestService.createRequest(RequestMapper.toItemRequestDto(request), user.getId());
         request.setId(requestDto.getId());
+
         ItemRequest request1 = new ItemRequest(null, "request1", user2, LocalDateTime.now());
-        ItemRequestDto requestDto1 =
-                requestService.createRequest(RequestMapper.toItemRequestDto(request1), user.getId());
+        requestService.createRequest(RequestMapper.toItemRequestDto(request1), user.getId());
+
         ItemRequest request2 = new ItemRequest(null, "request2", user2, LocalDateTime.now());
-        ItemRequestDto requestDto2 =
-                requestService.createRequest(RequestMapper.toItemRequestDto(request2), user.getId());
+        requestService.createRequest(RequestMapper.toItemRequestDto(request2), user.getId());
+
         List<ItemRequestDto> requests = requestService.getUserRequests(user.getId());
 
         assertEquals(requests.size(), 3);
         assertEquals(requests.get(0).getDescription(), request.getDescription());
         assertEquals(requests.get(1).getDescription(), request1.getDescription());
         assertEquals(requests.get(2).getDescription(), request2.getDescription());
+    }
+
+    @Test
+    void getAllRequestsWrongPaginationTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        assertThrows(InvalidException.class,
+                () -> requestService.getAllRequests(user.getId(), -5, 10));
+    }
+
+    @Test
+    void getAllRequestsWrongUserTest() {
+        assertThrows(DataNotFoundException.class,
+                () -> requestService.getAllRequests(5L, 0, 10));
     }
 
     @Test
@@ -92,11 +121,33 @@ public class RequestServiceTest {
         requestService.createRequest(RequestMapper.toItemRequestDto(request1), user2.getId());
         ItemRequest request2 = new ItemRequest(null, "request2", user2, LocalDateTime.now());
         requestService.createRequest(RequestMapper.toItemRequestDto(request2), user.getId());
-        List<ItemRequestDto> requests = requestService.getUserRequests(user.getId());
+        List<ItemRequestDto> requests = requestService.getAllRequests(user2.getId(), 0, 10);
 
         assertEquals(requests.size(), 2);
         assertEquals(requests.get(0).getDescription(), request.getDescription());
         assertEquals(requests.get(1).getDescription(), request2.getDescription());
+    }
+
+    @Test
+    void getRequestByIdWrongUserTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        ItemRequestDto requestDto =
+                requestService.createRequest(RequestMapper.toItemRequestDto(request), user.getId());
+        request.setId(requestDto.getId());
+
+        assertThrows(DataNotFoundException.class,
+                () -> requestService.getRequestById(5L, request.getId()));
+    }
+
+    @Test
+    void getRequestByWrongIdTest() {
+        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
+        user.setId(userDto.getId());
+
+        assertThrows(DataNotFoundException.class,
+                () -> requestService.getRequestById(user.getId(), 5L));
     }
 
     @Test
