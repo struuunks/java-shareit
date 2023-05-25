@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class ItemDtoOwner {
     String name;
     String description;
     Boolean available;
-    ItemRequest request;
+    Long requestId;
     BookingDto lastBooking;
     BookingDto nextBooking;
     List<CommentDto> comments;

@@ -3,6 +3,8 @@ package ru.practicum.shareit.booking.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repo.BookingRepository;
@@ -26,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -61,6 +64,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         booking.setBooker(user);
         booking.setStatus(Status.WAITING);
+
         return BookingMapper.toBookingDtoReturned(bookingRepository.save(booking));
     }
 
@@ -71,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
                 new DataNotFoundException("Бронирование с айди " + bookingId + " не найдено"));
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
-        if (!booking.getItem().getOwner().getId().equals(userId)) {
+        if (!booking.getItem().getOwner().getId().equals(user.getId())) {
             throw new DataNotFoundException("Пользователь с айди " + userId +
                     " не является владельцем вещи и не может изменять статус бронирования");
         }
@@ -90,10 +94,10 @@ public class BookingServiceImpl implements BookingService {
     public BookingDtoReturned getBookingById(Long bookingId, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
-        ;
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new DataNotFoundException("Бронирование с айди " + bookingId + " не найдено"));
-        if (!user.getId().equals(booking.getItem().getOwner().getId()) && !user.getId().equals(booking.getBooker().getId())) {
+        if (!user.getId().equals(booking.getItem().getOwner().getId()) &&
+                !user.getId().equals(booking.getBooker().getId())) {
             throw new DataNotFoundException("Бронирование недоступно, пользователь с айди "
                     + userId + " не является владельцем или арендатором вещи");
         }
@@ -102,10 +106,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDtoReturned> getAllBookingsByUser(String state, Long userId) {
+    public List<BookingDtoReturned> getAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
+                    " не могут быть меньше нуля");
+        }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
-        List<Booking> bookings = bookingRepository.findBookingsByBookerId(user.getId());
+        List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrderByIdDesc(user.getId(),
+                PageRequest.of(from / size, size));
         try {
             bookingsByState(State.valueOf(state.toUpperCase()), bookings);
         } catch (IllegalArgumentException e) {
@@ -118,16 +127,20 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<BookingDtoReturned> getAllBookingsByOwner(String state, Long ownerId) {
+    public List<BookingDtoReturned> getAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
+                    " не могут быть меньше нуля");
+        }
         User user = userRepository.findById(ownerId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + ownerId + " не найден"));
-        List<Booking> bookings = bookingRepository.findBookingsByItemOwnerId(user.getId());
+        List<Booking> bookings = bookingRepository.findBookingsByItemOwnerIdOrderByIdDesc(user.getId(),
+                PageRequest.of(from / size, size));
         try {
             bookingsByState(State.valueOf(state.toUpperCase()), bookings);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
         }
-        bookingsByState(State.valueOf(state.toUpperCase()), bookings);
         return bookingsByState(State.valueOf(state.toUpperCase()), bookings).stream()
                 .map(BookingMapper::toBookingDtoReturned)
                 .collect(Collectors.toList());
@@ -149,7 +162,8 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case CURRENT:
                 bookings = bookingsDB.stream()
-                        .filter(b -> b.getStart().isBefore(LocalDateTime.now()) && b.getEnd().isAfter(LocalDateTime.now()))
+                        .filter(b -> b.getStart().isBefore(LocalDateTime.now()) &&
+                                b.getEnd().isAfter(LocalDateTime.now()))
                         .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
                 break;
@@ -170,6 +184,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter(b -> b.getStatus().equals(Status.REJECTED))
                         .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
+                break;
         }
         return bookings;
     }

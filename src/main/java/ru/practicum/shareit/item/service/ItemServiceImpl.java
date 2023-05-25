@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.repo.BookingRepository;
@@ -20,6 +21,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.validator.ItemValidator;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repo.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
@@ -39,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     final UserRepository userRepository;
     final BookingRepository bookingRepository;
     final CommentRepository commentRepository;
+    final RequestRepository requestRepository;
     final ItemValidator validator;
 
     @Transactional
@@ -47,7 +51,12 @@ public class ItemServiceImpl implements ItemService {
         validator.validate(itemDto, userId);
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
-        Item item = ItemMapper.toItem(itemDto, user);
+        Item item = ItemMapper.toItem(itemDto, user, null);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = requestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
+                    new DataNotFoundException("Запрос с айди " + itemDto.getRequestId() + " не найден"));
+            item.setRequest(itemRequest);
+        }
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
@@ -134,12 +143,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemDtoOwner> viewAllItems(Long userId) {
+    public List<ItemDtoOwner> viewAllItems(Long userId, Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
+                    " не могут быть меньше нуля");
+        }
         LocalDateTime ldt = LocalDateTime.now();
         List<Booking> lastBookings = bookingRepository.findBookingsByStatusAndEndIsBeforeOrderByStartDesc(APPROVED, ldt);
         List<Booking> nextBookings = bookingRepository.findBookingsByStatusAndStartIsAfterOrderByStartAsc(APPROVED, ldt);
         List<ItemDtoOwner> items = new ArrayList<>();
-        for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId)) {
+        for (Item i : itemRepository.findByOwnerIdOrderByIdAsc(userId, PageRequest.of(from / size, size))) {
             List<Booking> lastBookingsByItem = lastBookings.stream()
                     .filter(b -> b.getItem().getId().equals(i.getId()))
                     .collect(Collectors.toList());
@@ -160,11 +173,15 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, Integer from, Integer size) {
+        if (from < 0 || size <= 0) {
+            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
+                    " не могут быть меньше нуля");
+        }
         if (text.isBlank()) {
             return Collections.emptyList();
         } else {
-            return itemRepository.search(text)
+            return itemRepository.search(text, PageRequest.of(from / size, size))
                     .stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());

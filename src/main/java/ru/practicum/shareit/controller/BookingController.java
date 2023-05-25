@@ -13,44 +13,47 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@RequestMapping(path = "/bookings")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingController {
     final BookingServiceImpl bookingService;
 
     @PostMapping
-    public BookingDtoReturned createBooking(@RequestBody BookingDtoReceived bookingDto,
-                                            @RequestHeader("X-Sharer-User-Id") Long userId) {
+    BookingDtoReturned createBooking(@RequestBody BookingDtoReceived bookingDto,
+                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Создание нового бронирования");
         return bookingService.createBooking(bookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDtoReturned bookingConfirmation(@PathVariable Long bookingId, @RequestParam Boolean approved,
-                                                  @RequestHeader("X-Sharer-User-Id") Long userId) {
+    BookingDtoReturned bookingConfirmation(@PathVariable Long bookingId, @RequestParam Boolean approved,
+                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Подтверждение бронирования с айди " + bookingId + " владельцем вещи");
         return bookingService.bookingConfirmation(bookingId, approved, userId);
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDtoReturned getBookingById(@PathVariable Long bookingId,
-                                             @RequestHeader("X-Sharer-User-Id") Long userId) {
+    BookingDtoReturned getBookingById(@PathVariable Long bookingId, @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Просмотр бронирования с айди " + bookingId);
         return bookingService.getBookingById(bookingId, userId);
     }
 
     @GetMapping
-    public List<BookingDtoReturned> getAllBookingsByUser(@RequestParam(defaultValue = "ALL") String state,
-                                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
+    List<BookingDtoReturned> getAllBookingsByUser(@RequestParam(defaultValue = "ALL") String state,
+                                                  @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                  @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("Просмотр бронирований пользователем с айди " + userId);
-        return bookingService.getAllBookingsByUser(state, userId);
+        return bookingService.getAllBookingsByUser(state, userId, from, size);
     }
 
     @GetMapping("/owner")
-    public List<BookingDtoReturned> getAllBookingsByOwner(@RequestParam(defaultValue = "ALL") String state,
-                                                          @RequestHeader("X-Sharer-User-Id") Long userId) {
+    List<BookingDtoReturned> getAllBookingsByOwner(@RequestParam(defaultValue = "ALL") String state,
+                                                   @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                   @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("Просмотр бронирований владельцем с айди " + userId);
-        return bookingService.getAllBookingsByOwner(state, userId);
+        return bookingService.getAllBookingsByOwner(state, userId, from, size);
     }
 }

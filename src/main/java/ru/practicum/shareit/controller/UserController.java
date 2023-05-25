@@ -12,38 +12,38 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(path = "/users")
 @AllArgsConstructor
+@RequestMapping(path = "/users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserController {
     final UserServiceImpl service;
 
     @PostMapping
-    public UserDto createUser(@RequestBody UserDto userDto) {
+    UserDto createUser(@RequestBody UserDto userDto) {
         log.info("Добавление нового пользователя");
         return service.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
+    UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
         log.info("Обновление данных пользователя с айди " + userId);
         return service.updateUser(userId, userDto);
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Long userId) {
+    UserDto getUserById(@PathVariable Long userId) {
         log.info("Запрошен пользователь с айди " + userId);
         return service.getUserById(userId);
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers() {
+    List<UserDto> getAllUsers() {
         log.info("Запрошены все пользователи");
         return service.getAllUsers();
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Long userId) {
+    void deleteUser(@PathVariable Long userId) {
         log.info("Удаление пользователь с айди " + userId);
         service.deleteUser(userId);
     }
