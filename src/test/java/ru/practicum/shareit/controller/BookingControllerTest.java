@@ -85,6 +85,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.id", is(booking.getId()), Long.class))
                 .andExpect(jsonPath("$.status", is(APPROVED.toString()), String.class));
     }
+
     @Test
     void getBookingByIdTest() throws Exception {
         when(bookingService.getBookingById(anyLong(), anyLong())).thenReturn(bookingDtoReturned);
@@ -111,8 +112,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id", is(booking.getId()), Long.class))
                 .andExpect(jsonPath("$[0].item.name", is(booking.getItem().getName()), String.class));
 
-        Mockito
-                .verify(bookingService, Mockito.times(1))
+        Mockito.verify(bookingService, Mockito.times(1))
                 .getAllBookingsByUser(anyString(), anyLong(), anyInt(), anyInt());
     }
 
@@ -127,8 +127,7 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$[0].id", is(booking.getId()), Long.class))
                 .andExpect(jsonPath("$[0].item.name", is(booking.getItem().getName()), String.class));
 
-        Mockito
-                .verify(bookingService, Mockito.times(1))
+        Mockito.verify(bookingService, Mockito.times(1))
                 .getAllBookingsByOwner(anyString(), anyLong(), anyInt(), anyInt());
     }
 }

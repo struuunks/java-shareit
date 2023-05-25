@@ -11,7 +11,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class BookingMapper {
+
     private static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+
     public static Booking toBooking(BookingDtoReceived bookingDto, User user, Item item) {
         return Booking.builder()
                 .id(bookingDto.getId())
