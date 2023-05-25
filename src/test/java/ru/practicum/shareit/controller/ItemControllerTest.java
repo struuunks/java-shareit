@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
+
     @MockBean
     private ItemServiceImpl itemService;
 
@@ -69,7 +70,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void commentItemTest() throws Exception{
+    void commentItemTest() throws Exception {
         when(itemService.commentItem(anyLong(), any(), any())).thenReturn(commentDto);
 
         mockMvc.perform(post("/items/{id}/comment", itemDto.getId())
@@ -82,9 +83,8 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.authorName", is(userDto.getName()), String.class));
     }
 
-
     @Test
-    void updateItemTest() throws Exception{
+    void updateItemTest() throws Exception {
         itemDto.setDescription("new description");
         when(itemService.updateItem(anyLong(), any(), anyLong())).thenReturn(itemDto);
 
@@ -102,7 +102,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void viewItemInformationTest() throws Exception{
+    void viewItemInformationTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong())).thenReturn(itemDtoOwner);
 
         mockMvc.perform(get("/items/" + itemDto.getId())
@@ -116,6 +116,7 @@ class ItemControllerTest {
         verify(itemService, times(1))
                 .getItemById(itemDto.getId(), userDto.getId());
     }
+
     @Test
     void viewAllItemsTest() throws Exception {
         when(itemService.viewAllItems(anyLong(), anyInt(), anyInt())).thenReturn(Collections.emptyList());
