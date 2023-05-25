@@ -32,7 +32,7 @@ import static ru.practicum.shareit.booking.model.Status.*;
 
 @SpringBootTest
 @Transactional
-public class BookingServiceImplTest {
+public class BookingServiceTest {
 
     @Autowired
     private BookingServiceImpl bookingService;
@@ -192,7 +192,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void bookingDoubleConfirmationTest(){
+    void bookingDoubleConfirmationTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -234,7 +234,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getBookingByWrongIdTest(){
+    void getBookingByWrongIdTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -243,13 +243,13 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getBookingByIdUserTest(){
+    void getBookingByIdUserTest() {
         assertThrows(DataNotFoundException.class,
                 () -> bookingService.createBooking(BookingMapper.toBookingDtoReceived(booking), 6L));
     }
 
     @Test
-    void getBookingByIdWrongUserTest(){
+    void getBookingByIdWrongUserTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -293,13 +293,13 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getAllBookingsByWrongUserTest(){
+    void getAllBookingsByWrongUserTest() {
         assertThrows(DataNotFoundException.class,
                 () -> bookingService.getAllBookingsByUser("ALL", 5L, 2, 10));
     }
 
     @Test
-    void getWrongPaginationBookingsByUserTest(){
+    void getWrongPaginationBookingsByUserTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -425,7 +425,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getFutureBookingsByOwnerTest(){
+    void getFutureBookingsByOwnerTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -449,7 +449,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getWrongStateBookingsByOwnerTest(){
+    void getWrongStateBookingsByOwnerTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -458,7 +458,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getWrongPaginationBookingsByOwnerTest(){
+    void getWrongPaginationBookingsByOwnerTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
@@ -467,7 +467,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void getBookingsByWrongOwnerTest(){
+    void getBookingsByWrongOwnerTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
 
