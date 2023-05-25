@@ -115,12 +115,13 @@ public class BookingServiceImpl implements BookingService {
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
         List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrderByIdDesc(user.getId(),
                 PageRequest.of(from / size, size));
+        List<Booking> bookingsByState;
         try {
-            bookingsByState(State.valueOf(state.toUpperCase()), bookings);
+            bookingsByState = bookingsByState(State.valueOf(state.toUpperCase()), bookings);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return bookingsByState(State.valueOf(state.toUpperCase()), bookings).stream()
+        return bookingsByState.stream()
                 .map(BookingMapper::toBookingDtoReturned)
                 .collect(Collectors.toList());
     }
@@ -136,12 +137,13 @@ public class BookingServiceImpl implements BookingService {
                 new DataNotFoundException("Пользователь с айди " + ownerId + " не найден"));
         List<Booking> bookings = bookingRepository.findBookingsByItemOwnerIdOrderByIdDesc(user.getId(),
                 PageRequest.of(from / size, size));
+        List<Booking> bookingsByState;
         try {
-            bookingsByState(State.valueOf(state.toUpperCase()), bookings);
+            bookingsByState = bookingsByState(State.valueOf(state.toUpperCase()), bookings);
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStateException("Unknown state: UNSUPPORTED_STATUS");
         }
-        return bookingsByState(State.valueOf(state.toUpperCase()), bookings).stream()
+        return bookingsByState.stream()
                 .map(BookingMapper::toBookingDtoReturned)
                 .collect(Collectors.toList());
     }
