@@ -144,10 +144,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public List<ItemDtoOwner> viewAllItems(Long userId, Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
-                    " не могут быть меньше нуля");
-        }
         LocalDateTime ldt = LocalDateTime.now();
         List<Booking> lastBookings =
                 bookingRepository.findBookingsByStatusAndEndIsBeforeOrderByStartDesc(APPROVED, ldt);
@@ -176,10 +172,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public List<ItemDto> searchItems(String text, Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
-                    " не могут быть меньше нуля");
-        }
         if (text.isBlank()) {
             return Collections.emptyList();
         } else {

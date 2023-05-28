@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoReceived;
 import ru.practicum.shareit.booking.dto.BookingDtoReturned;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@UtilityClass
 public class BookingMapper {
 
     private static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";

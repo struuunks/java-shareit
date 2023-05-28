@@ -94,15 +94,6 @@ public class RequestServiceTest {
     }
 
     @Test
-    void getAllRequestsWrongPaginationTest() {
-        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
-        user.setId(userDto.getId());
-
-        assertThrows(InvalidException.class,
-                () -> requestService.getAllRequests(user.getId(), -5, 10));
-    }
-
-    @Test
     void getAllRequestsWrongUserTest() {
         assertThrows(DataNotFoundException.class,
                 () -> requestService.getAllRequests(5L, 0, 10));

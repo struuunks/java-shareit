@@ -88,7 +88,7 @@ public class ItemServiceTest {
         item.setName("new item name");
 
         assertThrows(DataNotFoundException.class,
-                () -> itemService.updateItem(item.getId(), ItemMapper.toItemDto(item), 5L));
+                () -> itemService.updateItem(item.getId(), ItemMapper.toItemDto(item),  100L));
     }
 
     @Test
@@ -285,14 +285,6 @@ public class ItemServiceTest {
         assertEquals(itemsDtoOwner.get(0).getName(), item.getName());
         assertEquals(itemsDtoOwner.get(1).getName(), item2.getName());
         assertEquals(itemsDtoOwner.get(2).getName(), item3.getName());
-    }
-
-    @Test
-    void viewAllItemsWrongPaginationTest() {
-        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
-        user.setId(userDto.getId());
-
-        assertThrows(InvalidException.class, () -> itemService.viewAllItems(user.getId(), -5, 10));
     }
 
     @Test

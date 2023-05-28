@@ -299,15 +299,6 @@ public class BookingServiceTest {
     }
 
     @Test
-    void getWrongPaginationBookingsByUserTest() {
-        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
-        user.setId(userDto.getId());
-
-        assertThrows(InvalidException.class,
-                () -> bookingService.getAllBookingsByUser("ALL", user.getId(), -2, 10));
-    }
-
-    @Test
     void getAllBookingsByOwnerTest() {
         UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
         user.setId(userDto.getId());
@@ -455,15 +446,6 @@ public class BookingServiceTest {
 
         assertThrows(UnsupportedStateException.class,
                 () -> bookingService.getAllBookingsByOwner("UNSUPPORTED", user.getId(), 0, 10));
-    }
-
-    @Test
-    void getWrongPaginationBookingsByOwnerTest() {
-        UserDto userDto = userService.createUser(UserMapper.toUserDto(user));
-        user.setId(userDto.getId());
-
-        assertThrows(InvalidException.class,
-                () -> bookingService.getAllBookingsByOwner("ALL", user.getId(), -2, 10));
     }
 
     @Test

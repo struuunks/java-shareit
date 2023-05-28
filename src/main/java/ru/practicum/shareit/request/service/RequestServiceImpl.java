@@ -59,10 +59,6 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
-                    " не могут быть меньше нуля");
-        }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
         List<ItemRequestDto> requestDtos = requestRepository.findItemRequestsByRequestorIdNotOrderByCreatedAsc(

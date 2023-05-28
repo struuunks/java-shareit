@@ -107,10 +107,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public List<BookingDtoReturned> getAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
-                    " не могут быть меньше нуля");
-        }
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + userId + " не найден"));
         List<Booking> bookings = bookingRepository.findBookingsByBookerIdOrderByIdDesc(user.getId(),
@@ -129,10 +125,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public List<BookingDtoReturned> getAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
-        if (from < 0 || size <= 0) {
-            throw new InvalidException("Индекс первого элемента и количество элементов для отображения" +
-                    " не могут быть меньше нуля");
-        }
         User user = userRepository.findById(ownerId).orElseThrow(() ->
                 new DataNotFoundException("Пользователь с айди " + ownerId + " не найден"));
         List<Booking> bookings = bookingRepository.findBookingsByItemOwnerIdOrderByIdDesc(user.getId(),
