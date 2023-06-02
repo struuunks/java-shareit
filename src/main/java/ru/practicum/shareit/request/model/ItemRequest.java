@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "requests")
@@ -23,4 +24,6 @@ public class ItemRequest {
     @ManyToOne
     @JoinColumn(name = "requestor_id", referencedColumnName = "id", nullable = false)
     User requestor;
+    @Column(name = "created", nullable = false)
+    LocalDateTime created;
 }
