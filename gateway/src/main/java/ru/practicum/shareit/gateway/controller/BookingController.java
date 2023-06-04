@@ -53,7 +53,6 @@ public class BookingController {
 
         State state = State.from(stateString)
                 .orElseThrow(() -> new UnsupportedStateException("Unknown state: " + stateString));
-
         return client.getAllBookingsByUser(userId, state, from, size);
     }
 
@@ -65,7 +64,6 @@ public class BookingController {
 
         State state = State.from(stateString)
                 .orElseThrow(() -> new UnsupportedStateException("Unknown state: " + stateString));
-
         return client.getAllBookingsByOwner(userId, state, from, size);
     }
 }
