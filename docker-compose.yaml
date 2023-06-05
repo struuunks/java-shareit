@@ -3,8 +3,8 @@ services:
   gateway:
     hostname: gateway
     build:
-      context: 123/
-      dockerfile: gateway/Dockerfile
+      context: ./gateway/
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     depends_on:
