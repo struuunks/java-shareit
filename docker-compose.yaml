@@ -3,7 +3,7 @@ services:
   gateway:
     hostname: gateway
     build:
-      context: 123/
+      context: ./gateway/
       dockerfile: gateway/Dockerfile
     ports:
       - "8080:8080"
