@@ -36,7 +36,7 @@ import static ru.practicum.shareit.server.booking.model.Status.APPROVED;
 import static ru.practicum.shareit.server.booking.model.Status.WAITING;
 
 @ExtendWith(SpringExtension.class)
-public class BookingUnitTest {
+public class BookingServiceITest {
 
     private static final Integer FROM = 0;
     private static final Integer SIZE = 10;

@@ -29,20 +29,20 @@ public class BookingRepositoryTest {
     public void testFindBookingsByStatusAndStartIsAfterOrderByStartAsc() {
 
         User booker = new User(1L, "user", "user@yandex.ru");
-        userRepository.save(booker);
+        booker = userRepository.save(booker);
 
         Item item = new Item(1L, "item", "description", true, booker, null);
-        itemRepository.save(item);
+        item = itemRepository.save(item);
 
         LocalDateTime currentTime = LocalDateTime.now();
 
         Booking booking1 = new Booking(1L, LocalDateTime.now().plusMinutes(10), LocalDateTime.now().plusHours(1),
                 item, booker, Status.APPROVED);
-        bookingRepository.save(booking1);
+        booking1 = bookingRepository.save(booking1);
 
         Booking booking2 = new Booking(2L, LocalDateTime.now().plusHours(3),
                 LocalDateTime.now().plusHours(4), item, booker, Status.APPROVED);
-        bookingRepository.save(booking2);
+        booking2 = bookingRepository.save(booking2);
 
         List<Booking> foundBookings = bookingRepository
                 .findBookingsByStatusAndStartIsAfterOrderByStartAsc(Status.APPROVED, currentTime);

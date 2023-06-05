@@ -10,7 +10,6 @@ import ru.practicum.shareit.server.user.dto.UserDto;
 import ru.practicum.shareit.server.user.mapper.UserMapper;
 import ru.practicum.shareit.server.user.model.User;
 
-
 import org.springframework.http.MediaType;
 import ru.practicum.shareit.server.user.service.UserServiceImpl;
 

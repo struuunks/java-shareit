@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
 import static ru.practicum.shareit.server.booking.model.Status.APPROVED;
 
 @ExtendWith(SpringExtension.class)
-public class ItemUnitTest {
+public class ItemServiceITest {
 
     private static final Integer FROM = 0;
     private static final Integer SIZE = 10;

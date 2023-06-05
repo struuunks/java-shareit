@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-public class RequestUnitTest {
+public class RequestServiceITest {
 
     private static final Integer FROM = 0;
     private static final Integer SIZE = 10;
