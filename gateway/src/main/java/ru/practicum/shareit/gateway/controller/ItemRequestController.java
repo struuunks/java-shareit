@@ -26,12 +26,14 @@ public class ItemRequestController {
     ResponseEntity<Object> createRequest(@RequestBody ItemRequestDto itemRequestDto,
                                          @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Создание запроса на вещь пользователем с айди " + userId);
+
         return client.createRequest(userId, itemRequestDto);
     }
 
     @GetMapping
     ResponseEntity<Object> getUserRequests(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Просмотр запросов пользователя с айди " + userId);
+
         return client.getUserRequests(userId);
     }
 
@@ -40,6 +42,7 @@ public class ItemRequestController {
                                           @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                           @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Просмотр всех запросов пользователем с айди " + userId);
+
         return client.getAllRequests(userId, from, size);
 
     }
@@ -48,6 +51,7 @@ public class ItemRequestController {
     ResponseEntity<Object> getRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable Long requestId) {
         log.info("Просмотр запроса с айди" + requestId + " пользователем с айди " + userId);
+
         return client.getRequestById(userId, requestId);
     }
 }

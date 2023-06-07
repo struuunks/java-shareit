@@ -30,8 +30,9 @@ public class BookingController {
     @PostMapping()
     ResponseEntity<Object> createBooking(@RequestBody BookingDto bookingDto,
                                          @RequestHeader("X-Sharer-User-Id") Long userId) {
-        BookingDto.validate(bookingDto);
         log.info("Создание нового бронирования пользователем с айди " + userId);
+        BookingDto.validate(bookingDto);
+
         return client.createBooking(userId, bookingDto);
     }
 
@@ -39,6 +40,7 @@ public class BookingController {
     ResponseEntity<Object> bookingConfirmation(@PathVariable Long bookingId, @RequestParam Boolean approved,
                                                @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Подтверждение бронирования с айди " + bookingId + " владельцем вещи");
+
         return client.bookingConfirmation(userId, bookingId, approved);
     }
 
@@ -46,6 +48,7 @@ public class BookingController {
     ResponseEntity<Object> getBookingById(@PathVariable Long bookingId,
                                           @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Просмотр бронирования с айди " + bookingId);
+
         return client.getBookingById(userId, bookingId);
     }
 
@@ -58,6 +61,7 @@ public class BookingController {
                 " , from={}, size={}", from, size);
         State state = State.from(stateString)
                 .orElseThrow(() -> new UnsupportedStateException("Unknown state: " + stateString));
+
         return client.getAllBookingsByUser(userId, state, from, size);
     }
 
@@ -70,6 +74,7 @@ public class BookingController {
                 " , from={}, size={}", from, size);
         State state = State.from(stateString)
                 .orElseThrow(() -> new UnsupportedStateException("Unknown state: " + stateString));
+
         return client.getAllBookingsByOwner(userId, state, from, size);
     }
 }

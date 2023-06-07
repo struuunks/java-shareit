@@ -29,6 +29,7 @@ public class ItemController {
     ResponseEntity<Object> createItem(@RequestBody @Validated(Create.class) ItemDto itemDto,
                                       @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Добавление новой вещи пользователем с айди " + userId);
+
         return client.createItem(userId, itemDto);
     }
 
@@ -36,6 +37,7 @@ public class ItemController {
     ResponseEntity<Object> commentItem(@PathVariable Long itemId, @RequestBody CommentDto commentDto,
                                        @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Добавление нового коментария пользователем с айди " + userId + " к вещи с айди " + itemId);
+
         return client.commentItem(userId, itemId, commentDto);
     }
 
@@ -43,6 +45,7 @@ public class ItemController {
     ResponseEntity<Object> updateItem(@PathVariable Long itemId, @RequestBody @Validated(Update.class) ItemDto itemDto,
                                       @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Обновление данных вещи с айди " + itemId);
+
         return client.updateItem(userId, itemId, itemDto);
     }
 
@@ -50,6 +53,7 @@ public class ItemController {
     ResponseEntity<Object> getItemById(@PathVariable Long itemId,
                                        @RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Просмотр информации о вещи с айди " + itemId);
+
         return client.getItemById(userId, itemId);
     }
 
@@ -58,6 +62,7 @@ public class ItemController {
                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                         @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Запрошен список всех вещей пользователя с айди " + userId + " , from={}, size={}", from, size);
+
         return client.viewAllItems(userId, from, size);
     }
 
@@ -67,6 +72,7 @@ public class ItemController {
                                        @RequestParam(defaultValue = "10") Integer size) {
         log.info("Поиск вещей содержащих '" + text + "' в названии или описании пользователем с айди " + userId
                 + " , from={}, size={}", from, size);
+
         return client.searchItems(text, userId, from, size);
     }
 }

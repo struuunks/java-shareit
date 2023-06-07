@@ -13,7 +13,8 @@ public class BookingErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidException.class)
     public ResponseEntity<Map<String, String>> handleInvalid(final InvalidException e) {
-        return new ResponseEntity<>(Map.of("Неверный запрос", e.getMessage()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(Map.of("Неверный запрос", e.getMessage()),
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnsupportedStateException.class)
@@ -24,6 +25,7 @@ public class BookingErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<Map<String, String>> handleThrowable(final Throwable e) {
-        return new ResponseEntity<>(Map.of("Невесрный запрос", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(Map.of("Невесрный запрос", e.getMessage()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
