@@ -17,8 +17,13 @@ public class BookingErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedStateException.class)
-    protected ResponseEntity<Response> handleUnsupportedStateException() {
+    public ResponseEntity<Response> handleUnsupportedStateException() {
         Response response = new Response("Unknown state: UNSUPPORTED_STATUS");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<Map<String, String>> handleThrowable(final Throwable e) {
+        return new ResponseEntity<>(Map.of("Невесрный запрос", e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

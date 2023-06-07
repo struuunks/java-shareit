@@ -4,19 +4,15 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.server.item.dto.CommentDto;
 import ru.practicum.shareit.server.item.dto.ItemDto;
 import ru.practicum.shareit.server.item.dto.ItemDtoOwner;
 import ru.practicum.shareit.server.item.service.ItemServiceImpl;
 
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
-@Validated
 @RestController
 @AllArgsConstructor
 @RequestMapping("/items")
@@ -52,8 +48,8 @@ public class ItemController {
 
     @GetMapping
     List<ItemDtoOwner> viewAllItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                    @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                    @RequestParam(defaultValue = "10") @Positive Integer size) {
+                                    @RequestParam(defaultValue = "0") Integer from,
+                                    @RequestParam(defaultValue = "10") Integer size) {
         log.info("Запрошен список всех вещей пользователя с айди " + userId);
         return service.viewAllItems(userId, from, size);
     }
